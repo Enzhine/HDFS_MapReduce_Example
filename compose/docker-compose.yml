@@ -1,0 +1,59 @@
+version: '3'
+
+networks:
+  hdfs_net:
+    ipam:
+      driver: default
+      config:
+        - subnet: "192.168.0.0/24"
+
+services:
+  namenode:
+    image: docker.io/apache/hadoop:3.4.1
+    container_name: namenode
+    hostname: namenode
+    user: root
+    environment:
+      - HADOOP_HOME=/opt/hadoop
+    volumes:
+      - ./hdfs/name:/opt/hadoop/dfs/name
+      - ./hdfs_conf:/opt/hadoop/etc/hadoop
+      - ./start_scripts/namenode.sh:/start.sh
+    ports:
+      - "9870:9870"
+    command: /start.sh
+    networks:
+      hdfs_net:
+        ipv4_address: 192.168.0.2
+
+  worker1:
+    image: docker.io/apache/hadoop:3.4.1
+    container_name: datanode_1
+    hostname: datanode_1
+    user: root
+    environment:
+      - HADOOP_HOME=/opt/hadoop
+    volumes:
+      - ./hdfs/data1:/opt/hadoop/dfs/data
+      - ./hdfs_conf:/opt/hadoop/etc/hadoop
+      - ./start_scripts/datanode.sh:/start.sh
+    command: /start.sh
+    networks:
+      hdfs_net:
+        ipv4_address: 192.168.0.3
+
+  worker2:
+    image: docker.io/apache/hadoop:3.4.1
+    container_name: datanode_2
+    hostname: datanode_2
+    user: root
+    environment:
+      - HADOOP_HOME=/opt/hadoop
+    volumes:
+      - ./hdfs/data2:/opt/hadoop/dfs/data
+      - ./hdfs_conf:/opt/hadoop/etc/hadoop
+      - ./start_scripts/datanode.sh:/start.sh
+    command: /start.sh
+    networks:
+      hdfs_net:
+        ipv4_address: 192.168.0.4
